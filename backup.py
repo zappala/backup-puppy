@@ -1,25 +1,27 @@
 import os
 
-from fabric.api import local
-from fabric.api import run
+from fabric.api import local, run, settings
 
 from config import Config
 
-b = Config()
-b.add(name='wiki',directory='zappala@internet.byu.edu:/home/zappala/dokuwiki')
+c = Config()
 
 def daily(name):
     """Make a daily backup of a directory."""
-    location = "%s/%s" % (b.location,name)
-    directory = b.backups[name]['directory']
-    number = b.backups[name]['daily']
+    location = "%s/%s" % (c.location,name)
+    directory = c.backups[name]['directory']
+    number = c.backups[name]['daily']
     # make directories
-    b.makedirs(name)
-    # make new backup
-    ## TBD: check for success and email on failure
+    c.makedirs(name)
+    # setup link to previous backup
+    link = ""
     if os.path.exists('%s/backup.daily.1' % (location)):
-        o = local("rsync -a --delete --link-dest=../backup.daily.1 %s %s/backup.daily.0" % (directory,location))
+        link = "--link-dest=../backup.dailyt.1"
+    # make new backup
+    with settings(warn_only=True):
+        op = local("rsync -a --delete %s %s %s/backup.daily.0" % (link,directory,location),capture=True)
+    if op.failed:
+        c.send_email(name,'daily',op.stderr)
     else:
-        o = local("rsync -a --delete %s %s/backup.daily.0" % (directory,location))
-    # rotate backups
-    b.rotate(name,'daily')
+        # rotate backups
+        c.rotate(name,'daily')

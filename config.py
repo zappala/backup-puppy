@@ -1,12 +1,24 @@
 import os
+import smtplib
+from email.mime.text import MIMEText
 
-class Config:
-    def __init__(self):
+class Config(object):
+    def __init__(self,filename='/home/backups/puppy.cfg'):
         self.backups = {}
-        self.location = "/home/backups"
+        self.parse_config(filename)
 
-    def set_location(self,directory):
-        self.location = directory
+    def parse_config(self,filename):
+        with open(filename,'r') as f:
+            for line in f.readlines():
+                if line.startswith('#'):
+                    pass
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+                if parts[0] == 'backup':
+                    self.add(parts[1],parts[2])
+                    continue
+                object.__setattr__(self, parts[0], parts[1])
 
     def add(self,name=None,directory=None,daily=7,weekly=4):
         if not name or not directory:
@@ -28,3 +40,13 @@ class Config:
             if os.path.exists("%s/backup.%s.%d" % (location,kind,i)):
                 os.rename("%s/backup.%s.%d" % (location,kind,i),"%s/backup.%s.%d" % (location,kind,i+1))
 
+    def send_email(self,name,kind,error):
+        msg = MIMEText("Error message:\n\n" + error)
+        msg['Subject'] = 'Backup Puppy: %s backup failure for %s' % (kind,name)
+        msg['From'] = self.mail_from
+        msg['To'] = self.mail_to
+
+        s = smtplib.SMTP(self.mail_host,self.mail_port)
+        s.login(self.mail_user,self.mail_password)
+        s.sendmail(self.mail_from,[self.mail_to],msg.as_string())
+        s.quit()

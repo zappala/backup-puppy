@@ -13,6 +13,7 @@ git clone git@github.com:zappala/backup-puppy.git
 Install a few things through apt:
 
 ```
+sudo apt-get install python-dev
 sudo apt-get install python-pip
 sudo pip install virtualenv
 ```
@@ -68,6 +69,10 @@ crontab -e
 In this file, put the following:
 
 ```
-0 1 * * * . /home/user/virtualenv/bin/activate && cd /home/user/backup-puppy && fab daily
-0 2 * * 1 . /home/user/virtualenv/bin/activate && cd /home/user/backup-puppy && fab weekly
+SHELL=/bin/bash
+
+0 1 * * * source $HOME/virtualenvs/backup-puppy/bin/activate && cd $HOME/backup\
+-puppy && fab daily
+0 2 * * 1 source $HOME/virtualenvs/backup-puppy/bin/activate && cd $HOME/backup\
+-puppy && fab weekly
 ```

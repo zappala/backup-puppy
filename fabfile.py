@@ -2,10 +2,10 @@ from backup import Backup
 
 b = Backup()
 
-def daily(name):
-    """Make a daily backup of a directory."""
-    b.backup(name,'daily')
+def daily():
+    """Do all daily backups."""
+    b.backup_all('daily')
 
 def weekly(name):
-    """Make a weekly backup of a directory."""
-    b.backup(name,'weekly')
+    """Do all weekly backups."""
+    b.backup_all('weekly')

@@ -34,6 +34,9 @@ class Backup(object):
         if not os.path.exists(location):
             os.makedirs(location)
 
+    def backup_all(self,kind):
+        for name in self.backups:
+            self.backup(name,kind)
 
     def backup(self,name,kind):
         location = "%s/%s" % (self.location,name)

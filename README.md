@@ -76,3 +76,7 @@ SHELL=/bin/bash
 0 2 * * 1 source $HOME/virtualenvs/backup-puppy/bin/activate && cd $HOME/backup\
 -puppy && fab weekly
 ```
+
+Note, to backup directories on remote machines, you will need to setup 
+your SSH keys appropriately.
+

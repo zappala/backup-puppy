@@ -3,7 +3,7 @@ import shutil
 import smtplib
 from email.mime.text import MIMEText
 
-from fabric.api import local, run, settings
+from fabric.api import local, run, settings, env
 
 class Backup(object):
     def __init__(self,filename='/home/backups/puppy.cfg'):
@@ -13,8 +13,9 @@ class Backup(object):
     def parse_config(self,filename):
         with open(filename,'r') as f:
             for line in f.readlines():
-                if line.startswith('#'):
-                    pass
+                line = line.rstrip()
+                if line.startswith('#') or not line:
+                    continue
                 parts = line.split()
                 if len(parts) < 2:
                     continue
@@ -47,6 +48,24 @@ class Backup(object):
         link = ""
         if os.path.exists('%s/backup.daily.1' % (location)):
             link = "--link-dest=../backup.daily.1"
+        # execute any configured commands on remote server
+        filename = '%s/%s.cfg' % (self.location,name)
+        if os.path.isfile(filename):
+            with open(filename,'r') as f:
+                env.host_string = ''
+                for line in f.readlines():
+                    line = line.rstrip()
+                    if line.startswith('#') or not line:
+                        continue
+                    if line.startswith('server'):
+                        parts = line.split()
+                        if len(parts) < 2:
+                            continue
+                        env.host_string = parts[1]
+                        continue
+                    if env.host_string == '':
+                        continue
+                    run(line)
         # make new backup
         with settings(warn_only=True):
             op = local("rsync -a --delete %s %s %s/backup.%s.0" % (link,directory,location,kind),capture=True)

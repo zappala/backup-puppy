@@ -77,6 +77,30 @@ SHELL=/bin/bash
 -puppy && fab weekly
 ```
 
-Note, to backup directories on remote machines, you will need to setup 
-your SSH keys appropriately.
+Note, to backup directories on remote machines, you will need to setup
+your SSH keys appropriately. I recommend using an SSH key without a
+password so the backup script can access the machine without prompting
+for the password.
 
+## Additional backup commands
+
+By default, the only command run to backup a remote directory is
+rsync.  In some cases, you may need to run additional commands to
+create the backup directory. 
+If you have configured a backup as:
+
+```
+backup mongo user@example.com:/home/user/mongo
+```
+
+Then you can create an additional configuration file in
+/home/backups/mongo.cfg to set this additional commands. An example
+configuration would be:
+
+```
+# server
+server example2.com
+
+# commands
+mongodump --db mongo --out /home/user/mongo
+```

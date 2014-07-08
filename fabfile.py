@@ -6,6 +6,6 @@ def daily():
     """Do all daily backups."""
     b.backup_all('daily')
 
-def weekly(name):
+def weekly():
     """Do all weekly backups."""
     b.backup_all('weekly')

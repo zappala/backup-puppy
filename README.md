@@ -104,3 +104,6 @@ server example2.com
 # commands
 mongodump --db mongo --out /home/user/mongo
 ```
+
+This specifies a required remote server and a list of one or more commands
+to execute on the server.
